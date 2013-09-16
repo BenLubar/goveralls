@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -31,11 +32,9 @@ func main() {
 	}
 	job.ID = string(revision)
 
-	cmd = exec.Command("gocov", "test", "./...")
-	cmd.Stderr = os.Stderr
-	cov, err := cmd.Output()
+	cov, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
-		log.Fatalf("gocov error: %v", err)
+		panic(err)
 	}
 	wd, err := os.Getwd()
 	if err != nil {
