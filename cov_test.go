@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"bytes"
 	"testing"
 )
 
@@ -25,20 +25,27 @@ func TestParseCov(t *testing.T) {
 	}
 
 	files := ParseCov(cov, wd)
-	filesJson, err := json.Marshal(files)
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 
-	expected, err := ioutil.ReadFile("goveralls-test/expected.json")
+	expectedJson, err := ioutil.ReadFile("goveralls-test/expected.json")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	var expected []*File
+	err = json.Unmarshal(expectedJson, &expected)
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 
-	if !bytes.Equal(filesJson, expected) {
-		t.Errorf("Expected:\t%q", expected)
-		t.Errorf("Actual:\t%q", filesJson)
+	filesJson, _ := json.Marshal(files)
+	expectedJson, _ = json.Marshal(expected)
+	if !bytes.Equal(filesJson, expectedJson) {
+		t.Errorf("Actual:  \t%q", filesJson)
+		t.Errorf("Expected:\t%q", expectedJson)
 	}
 }
