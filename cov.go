@@ -25,7 +25,7 @@ func ParseCov(cov []byte, wd string) []*File {
 			}
 			file, ok := files[rel]
 			if !ok {
-				contents, err := ioutil.ReadFile(fun.File)
+				contents, err := ioutil.ReadFile(rel)
 				if err != nil {
 					panic(err)
 				}
