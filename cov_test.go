@@ -4,17 +4,27 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"os"
+	"os/exec"
 	"testing"
 )
 
 func TestParseCov(t *testing.T) {
-	cov, err := ioutil.ReadFile("goveralls-test/coverage.json")
+	cmd := exec.Command("gocov", "test", "github.com/BenLubar/goveralls/goveralls-test")
+	cmd.Stderr = os.Stderr
+	cov, err := cmd.Output()
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 
-	files := ParseCov(cov, "/home/ben/go/src/github.com/BenLubar/goveralls")
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
+	files := ParseCov(cov, wd)
 	filesJson, err := json.Marshal(files)
 	if err != nil {
 		t.Fatal(err)
