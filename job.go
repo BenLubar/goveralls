@@ -12,6 +12,7 @@ import (
 type Job struct {
 	ID      string  `json:"service_job_id"`
 	Service string  `json:"service_name"`
+	Token   string  `json:"repo_token"`
 	Files   []*File `json:"source_files"`
 }
 
@@ -29,8 +30,7 @@ func Submit(job *Job) {
 		panic(err)
 	}
 	resp, err := http.PostForm("https://coveralls.io/api/v1/jobs", url.Values{
-		"repo_token": {*repo_token},
-		"json_file":  {string(b)},
+		"json": {string(b)},
 	})
 	if err != nil {
 		panic(err)

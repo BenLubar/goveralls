@@ -21,6 +21,7 @@ func main() {
 
 	var job Job
 	job.Service = "goveralls"
+	job.Token = *repo_token
 
 	revision, err := exec.Command("git", "log", "--format=%H", "-n", "1", "HEAD").Output()
 	if err != nil {
