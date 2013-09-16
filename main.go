@@ -23,13 +23,17 @@ func main() {
 	job.Service = "goveralls"
 	job.Token = *repo_token
 
-	revision, err := exec.Command("git", "log", "--format=%H", "-n", "1", "HEAD").Output()
+	cmd := exec.Command("git", "log", "--format=%H", "-n", "1", "HEAD")
+	cmd.Stderr = os.Stderr
+	revision, err := cmd.Output()
 	if err != nil {
 		log.Fatalf("Git error: %v", err)
 	}
 	job.ID = string(revision)
 
-	cov, err := exec.Command("gocov", "test", "./...").Output()
+	cmd = exec.Command("gocov", "test", "./...")
+	cmd.Stderr = os.Stderr
+	cov, err := cmd.Output()
 	if err != nil {
 		log.Fatalf("gocov error: %v", err)
 	}
