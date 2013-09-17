@@ -10,6 +10,11 @@ import (
 )
 
 func TestParseCov(t *testing.T) {
+	if output, err := exec.Command("go", "get", "github.com/axw/gocov/gocov").CombinedOutput(); err != nil {
+		t.Log(string(output))
+		t.Fatal(err)
+		return
+	}
 	cmd := exec.Command("gocov", "test", "github.com/BenLubar/goveralls/goveralls-test")
 	cmd.Stderr = os.Stderr
 	cov, err := cmd.Output()
