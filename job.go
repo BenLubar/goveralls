@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 type Job struct {
@@ -14,6 +15,23 @@ type Job struct {
 	Service string  `json:"service_name"`
 	Token   string  `json:"repo_token"`
 	Files   []*File `json:"source_files"`
+
+	Git struct {
+		Head struct {
+			ID             string `json:"id"`
+			AuthorName     string `json:"author_name"`
+			AuthorEmail    string `json:"author_email"`
+			CommitterName  string `json:"committer_name"`
+			CommitterEmail string `json:"committer_email"`
+			Message        string `json:"message"`
+		} `json:"head"`
+
+		Branch string `json:"branch"`
+
+		Remotes []*GitRemote `json:"remotes"`
+	} `json:"git"`
+
+	RunAt time.Time `json:"run_at"`
 }
 
 type File struct {
@@ -22,6 +40,11 @@ type File struct {
 	Coverage []*int64 `json:"coverage"`
 
 	offsets []int `json:"-"`
+}
+
+type GitRemote struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }
 
 func Submit(job *Job) {

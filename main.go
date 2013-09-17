@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
+	"time"
 )
 
 var (
@@ -24,13 +26,23 @@ func main() {
 	job.Service = "goveralls"
 	job.Token = *repo_token
 
-	cmd := exec.Command("git", "log", "--format=%H", "-n", "1", "HEAD")
-	cmd.Stderr = os.Stderr
-	revision, err := cmd.Output()
-	if err != nil {
-		log.Fatalf("Git error: %v", err)
+	job.Git.Branch = git("rev-parse", "--abbrev-ref", "HEAD")
+	job.ID = git("log", "-1", "--format=%H")
+	job.Git.Head.ID = job.ID
+	job.Git.Head.AuthorName = git("log", "-1", "--format=%aN")
+	job.Git.Head.AuthorEmail = git("log", "-1", "--format=%aE")
+	job.Git.Head.CommitterName = git("log", "-1", "--format=%cN")
+	job.Git.Head.CommitterEmail = git("log", "-1", "--format=%cE")
+	job.Git.Head.Message = git("log", "-1", "--format=%s")
+	for _, line := range strings.FieldsFunc(git("remote", "-v"), func(r rune) bool { return r == '\n' }) {
+		fields := strings.Fields(line)
+		job.Git.Remotes = append(job.Git.Remotes, &GitRemote{
+			Name: fields[0],
+			URL:  fields[1],
+		})
 	}
-	job.ID = string(revision)
+
+	job.RunAt = time.Now()
 
 	cov, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -42,4 +54,14 @@ func main() {
 	}
 	job.Files = ParseCov(cov, wd)
 	Submit(&job)
+}
+
+func git(args ...string) string {
+	cmd := exec.Command("git", args...)
+	cmd.Stderr = os.Stderr
+	output, err := cmd.Output()
+	if err != nil {
+		log.Fatalf("Git error: %v", err)
+	}
+	return string(output)
 }

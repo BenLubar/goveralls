@@ -1,11 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"bytes"
 	"testing"
 )
 
