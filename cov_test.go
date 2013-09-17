@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -15,6 +17,13 @@ func TestParseCov(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
+
+	path := filepath.SplitList(os.Getenv("PATH"))
+	for _, gopath := range filepath.SplitList(os.Getenv("GOPATH")) {
+		path = append(path, filepath.Join(gopath, "bin"))
+	}
+	os.Setenv("PATH", strings.Join(path, string(filepath.ListSeparator)))
+
 	cmd := exec.Command("gocov", "test", "github.com/BenLubar/goveralls/goveralls-test")
 	cmd.Stderr = os.Stderr
 	cov, err := cmd.Output()
